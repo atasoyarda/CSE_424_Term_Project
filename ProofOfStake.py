@@ -1,6 +1,9 @@
 from BlockchainUtils import BlockchainUtils
+from Lot import Lot
+
 
 class ProofOfStake():
+
     def __init__(self):
         self.stakers = {}
         self.setGenesisNodeStake()
@@ -21,17 +24,11 @@ class ProofOfStake():
         else:
             return None
 
-    def calculateHash(self, publicKey, iteration, lastBlockHash):
-        hashData = publicKey + lastBlockHash
-        for _ in range(iteration):
-            hashData = BlockchainUtils.hash(hashData).hexdigest()
-        return hashData
-
     def validatorLots(self, seed):
         lots = []
         for validator in self.stakers.keys():
             for stake in range(self.get(validator)):
-                lots.append((validator, stake+1, seed))
+                lots.append(Lot(validator, stake+1, seed))
         return lots
 
     def winnerLot(self, lots, seed):
@@ -39,7 +36,7 @@ class ProofOfStake():
         leastOffset = None
         referenceHashIntValue = int(BlockchainUtils.hash(seed).hexdigest(), 16)
         for lot in lots:
-            lotIntValue = int(self.calculateHash(*lot), 16)
+            lotIntValue = int(lot.lotHash(), 16)
             offset = abs(lotIntValue - referenceHashIntValue)
             if leastOffset is None or offset < leastOffset:
                 leastOffset = offset
@@ -49,4 +46,4 @@ class ProofOfStake():
     def forger(self, lastBlockHash):
         lots = self.validatorLots(lastBlockHash)
         winnerLot = self.winnerLot(lots, lastBlockHash)
-        return winnerLot[0]
+        return winnerLot.publicKey

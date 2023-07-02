@@ -2,20 +2,16 @@ from Crypto.Hash import SHA256
 import json
 import jsonpickle
 
+class BlockchainUtils:
 
-class BlockchainUtils():
+    @classmethod
+    def hash(cls, data):
+        return SHA256.new(json.dumps(data).encode('utf-8'))
 
-    @staticmethod
-    def hash(data):
-        dataString = json.dumps(data)
-        dataBytes = dataString.encode('utf-8')
-        dataHash = SHA256.new(dataBytes)
-        return dataHash
-
-    @staticmethod
-    def encode(objectToEncode):
+    @classmethod
+    def encode(cls, objectToEncode):
         return jsonpickle.encode(objectToEncode, unpicklable=True)
 
-    @staticmethod
-    def decode(encodedObject):
+    @classmethod
+    def decode(cls, encodedObject):
         return jsonpickle.decode(encodedObject)

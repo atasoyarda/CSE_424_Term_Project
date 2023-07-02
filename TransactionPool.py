@@ -1,7 +1,4 @@
-
-
-class TransactionPool():
-
+class TransactionPool:
     def __init__(self):
         self.transactions = []
 
@@ -9,24 +6,18 @@ class TransactionPool():
         self.transactions.append(transaction)
 
     def transactionExists(self, transaction):
-        for poolTransaction in self.transactions:
-            if poolTransaction.equals(transaction):
-                return True
-        return False
+        return any(
+            poolTransaction.equals(transaction) for poolTransaction in self.transactions
+        )
 
     def removeFromPool(self, transactions):
-        newPoolTransactions = []
-        for poolTransaction in self.transactions:
-            insert = True
-            for transaction in transactions:
-                if poolTransaction.equals(transaction):
-                    insert = False
-            if insert == True:
-                newPoolTransactions.append(poolTransaction)
-        self.transactions = newPoolTransactions
+        self.transactions = [
+            poolTransaction
+            for poolTransaction in self.transactions
+            if not any(
+                poolTransaction.equals(transaction) for transaction in transactions
+            )
+        ]
 
     def forgingRequired(self):
-        if len(self.transactions) >= 1:
-            return True
-        else:
-            return False
+        return len(self.transactions) >= 1

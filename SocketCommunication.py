@@ -23,6 +23,7 @@ class SocketCommunication(Node):
         self.peerDiscoveryHandler.start()
         self.connectToFirstNode()
 
+
     def inbound_node_connected(self, connected_node):
         self.peerDiscoveryHandler.handshake(connected_node)
 
@@ -31,19 +32,20 @@ class SocketCommunication(Node):
 
     def node_message(self, connected_node, message):
         message = BlockchainUtils.decode(json.dumps(message))
-        if message.messageType == 'DISCOVERY':
-            self.peerDiscoveryHandler.handleMessage(message)
-        elif message.messageType == 'TRANSACTION':
-            transaction = message.data
-            self.node.handleTransaction(transaction)
-        elif message.messageType == 'BLOCK':
-            block = message.data
-            self.node.handleBlock(block)
-        elif message.messageType == 'BLOCKCHAINREQUEST':
-            self.node.handleBlockchainRequest(connected_node)
-        elif message.messageType == 'BLOCKCHAIN':
-            blockchain = message.data
-            self.node.handleBlockchain(blockchain)
+        handlers = {
+            'DISCOVERY': self.peerDiscoveryHandler.handleMessage,
+            'TRANSACTION': self.node.handleTransaction,
+            'BLOCK': self.node.handleBlock,
+            'BLOCKCHAINREQUEST': self.node.handleBlockchainRequest,
+            'BLOCKCHAIN': self.node.handleBlockchain
+        }
+
+        if message.messageType in handlers:
+            handler = handlers[message.messageType]
+            if message.messageType == 'DISCOVERY':
+                handler(message)
+            else:
+                handler(message.data)
 
     def send(self, receiver, message):
         self.send_to_node(receiver, message)

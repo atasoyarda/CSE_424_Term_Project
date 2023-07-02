@@ -1,9 +1,7 @@
 import time
 import copy
 
-
-class Block():
-
+class Block:
     def __init__(self, transactions, lastHash, forger, blockCount):
         self.blockCount = blockCount
         self.transactions = transactions
@@ -19,20 +17,17 @@ class Block():
         return genesisBlock
 
     def toJson(self):
-        data = {}
-        data['blockCount'] = self.blockCount
-        data['lastHash'] = self.lastHash
-        data['signature'] = self.signature
-        data['forger'] = self.forger
-        data['timestamp'] = self.timestamp
-        jsonTransactions = []
-        for transaction in self.transactions:
-            jsonTransactions.append(transaction.toJson())
-        data['transactions'] = jsonTransactions
-        return data
+        return {
+            'blockCount': self.blockCount,
+            'lastHash': self.lastHash,
+            'signature': self.signature,
+            'forger': self.forger,
+            'timestamp': self.timestamp,
+            'transactions': [transaction.toJson() for transaction in self.transactions]
+        }
 
     def payload(self):
-        jsonRepresentation = copy.deepcopy(self.toJson())
+        jsonRepresentation = self.toJson().copy()
         jsonRepresentation['signature'] = ''
         return jsonRepresentation
 
